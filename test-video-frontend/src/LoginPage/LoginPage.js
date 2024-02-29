@@ -14,6 +14,7 @@ const LoginPage = ({ saveUsername }) => {
   const history = useHistory();
 
   const handleSubmitButtonPressed = () => {
+    // currently not working (2/29/2024)
     history.push('/dashboard')
     saveUsername(username);
   };
