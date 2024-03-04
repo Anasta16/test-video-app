@@ -5,6 +5,7 @@ import UsernameInput from './components/UsernameInput';
 import SubmitButton from './components/SubmitButton';
 import { useHistory } from 'react-router-dom';
 import { setUsername } from '../store/actions/dashboardActions';
+import { registerNewUser } from '../utils/wssConnection/wssConnection';
 
 import './LoginPage.css';
 
@@ -14,9 +15,10 @@ const LoginPage = ({ saveUsername }) => {
   const history = useHistory();
 
   const handleSubmitButtonPressed = () => {
-    // currently not working (2/29/2024)
-    history.push('/dashboard')
+    // useHistory currently not working (2/29/2024)
+    registerNewUser(username);
     saveUsername(username);
+    history.push('dashboard');
   };
 
   return (
