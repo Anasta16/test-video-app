@@ -19,6 +19,11 @@ const io = socket(server, {
 
 let peers = [];
 
+const broadcastEventTypes = {
+    ACTIVE_USERS: 'ACTIVE_USERS',
+    GROUP_CALL_ROOMS: 'GROUP_CALL_ROOMS',
+};
+
 io.on('connection', (socket) => {
     socket.emit('connection', null);
     console.log('new user connected');
@@ -27,9 +32,23 @@ io.on('connection', (socket) => {
     socket.on('register-new-user', (data) => {
         peers.push({
             username: data.username,
-            socket: data.socketId
+            socketId: data.socketId
         });
         console.log('registered new user');
-        console.log(peers)
+        console.log(peers);
+
+        io.sockets.emit('broadcast', {
+            event: broadcastEventTypes.ACTIVE_USERS,
+            activeUsers: peers
+        })
+    })
+
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+        peers = peers.filter(peer => peer.socketId !== socket.id);
+        io.sockets.emit('broadcast', {
+            event: broadcastEventTypes.ACTIVE_USERS,
+            activeUsers: peers
+        })
     })
 });

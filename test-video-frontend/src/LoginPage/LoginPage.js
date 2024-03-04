@@ -15,10 +15,11 @@ const LoginPage = ({ saveUsername }) => {
   const history = useHistory();
 
   const handleSubmitButtonPressed = () => {
-    // useHistory currently not working (2/29/2024)
-    registerNewUser(username);
-    saveUsername(username);
-    history.push('dashboard');
+      registerNewUser(username);
+      saveUsername(username);
+      console.log('Before history.push');
+      history.push('/dashboard');
+      console.log('After history.push');
   };
 
   return (
