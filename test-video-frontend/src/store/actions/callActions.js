@@ -7,6 +7,8 @@ export const callStates = {
 
 export const CALL_SET_LOCAL_STREAM = 'CALL_SET_LOCAL_STREAM';
 export const CALL_SET_CALL_STATE = 'CALL_SET_CALL_STATE';
+export const CALL_SET_CALLING_DIALOGUE_VISIBLE = 'CALL_SET_CALLING_DIALOGUE_VISIBLE';
+export const CALL_SET_CALLER_USERNAME = 'CALL_SET_CALLER_USERNAME';
 
 export const setLocalStream = (localStream) => {
     return {
@@ -19,5 +21,19 @@ export const setCallState = (callState) => {
     return {
         type: CALL_SET_CALL_STATE,
         callState
+    }
+}
+
+export const setCallingDialogueVisible = (visible) => {
+    return {
+        type: CALL_SET_CALLING_DIALOGUE_VISIBLE,
+        visible
+    }
+}
+
+export const setCallerUsername = (callerUsername) => {
+    return {
+        type: CALL_SET_CALLER_USERNAME,
+        callerUsername
     }
 }

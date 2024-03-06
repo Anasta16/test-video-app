@@ -2,7 +2,9 @@ import * as callActions from '../actions/callActions';
 
 const initState = {
     localStream: null,
-    callState: callActions.callStates.CALL_UNAVAILABLE
+    callState: callActions.callStates.CALL_UNAVAILABLE,
+    callingDialogueVisible: false,
+    callerUsername: ''
 };
 
 const reducer = (state = initState, action) => {
@@ -16,6 +18,16 @@ const reducer = (state = initState, action) => {
             return {
                 ...state,
                 callState: action.callState
+            };
+        case callActions.CALL_SET_CALLING_DIALOGUE_VISIBLE:
+            return {
+                ...state,
+                callingDialogueVisible: action.visible
+            };
+        case callActions.CALL_SET_CALLER_USERNAME:
+            return {
+                ...state,
+                callerUsername: action.callerUsername
             }
         default:
             return state;
