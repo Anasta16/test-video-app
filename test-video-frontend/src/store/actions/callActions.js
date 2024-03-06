@@ -5,10 +5,11 @@ export const callStates = {
     CALL_IN_PROGRESS: 'CALL_IN_PROGRESS',
 };
 
-export const CALL_SET_LOCAL_STREAM = 'CALL_SET_LOCAL_STREAM';
-export const CALL_SET_CALL_STATE = 'CALL_SET_CALL_STATE';
-export const CALL_SET_CALLING_DIALOGUE_VISIBLE = 'CALL_SET_CALLING_DIALOGUE_VISIBLE';
-export const CALL_SET_CALLER_USERNAME = 'CALL_SET_CALLER_USERNAME';
+export const CALL_SET_LOCAL_STREAM = 'CALL.SET_LOCAL_STREAM';
+export const CALL_SET_CALL_STATE = 'CALL.SET_CALL_STATE';
+export const CALL_SET_CALLING_DIALOGUE_VISIBLE = 'CALL.SET_CALLING_DIALOGUE_VISIBLE';
+export const CALL_SET_CALLER_USERNAME = 'CALL_.SET_CALLER_USERNAME';
+export const CALL_SET_CALL_REJECTED = 'CALL.SET_CALL_REJECTED';
 
 export const setLocalStream = (localStream) => {
     return {
@@ -35,5 +36,15 @@ export const setCallerUsername = (callerUsername) => {
     return {
         type: CALL_SET_CALLER_USERNAME,
         callerUsername
+    }
+}
+
+export const setCallRejected = (callRejectedDetails) => {
+    return {
+        type: CALL_SET_CALL_REJECTED,
+        callRejected: {
+            rejected: callRejectedDetails.rejected,
+            reason: callRejectedDetails.reason,
+        }
     }
 }
