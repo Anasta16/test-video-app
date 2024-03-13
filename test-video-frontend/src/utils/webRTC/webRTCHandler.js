@@ -13,11 +13,21 @@ const defaultConstraints = {
     audio: true
 };
 
+const configuration = {
+    iceServers: [{
+        urls: 'stun:stun.l.google.com:13902'
+    }]
+};
+
+let connectedUserSocketId;
+let peerConnection;
+
 export const getLocalStream = () => {
     navigator.mediaDevices.getUserMedia(defaultConstraints)
     .then(stream => {
         store.dispatch(setLocalStream(stream));
         store.dispatch(setCallState(callStates.CALL_AVAILABLE));
+        createPeerConnection();
     })
     .catch(err => {
         console.error('error occurred when trying to get access to user media/local stream');
@@ -25,7 +35,28 @@ export const getLocalStream = () => {
     })
 }
 
-let connectedUserSocketId;
+const createPeerConnection  = () => {
+    peerConnection = new RTCPeerConnection(configuration);
+
+    const localStream = store.getState().call.localStream;
+
+    for (const track of localStream.getTracks()) {
+        peerConnection.addTrack(track, localStream);
+    };
+
+    peerConnection.onTrack = ({ streams: [stream] }) => {
+        // dispatch remote stream in our store
+    };
+
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+            wss.sendWebRTCCandidate({
+                candidate: event.candidate,
+                connectedUserSocketId: connectedUserSocketId,
+            });
+        };
+    };
+};
 
 export const callToOtherUser = (calleeDetails) => {
     connectedUserSocketId = calleeDetails.socketId;
@@ -70,21 +101,57 @@ export const rejectIncomingCallRequest = () => {
 };
 
 export const handlePreOfferAnswer = (data) => {
+
+    store.dispatch(setCallingDialogueVisible(false)); 
+
     if (data.answer === preOfferAnswers.CALL_ACCEPTED) {
-        // send webRTC offer
+        sendOffer();
     } else {
         let rejectionReason;
         if (data.answer === preOfferAnswers.CALL_NOT_AVAILABLE) {
-            rejectionReason = "Callee is not available to pick uip the call right now"
+            rejectionReason = "Callee is not available to pick up the call right now"
         } else {
             rejectionReason = "Call rejected by the callee"
         }
         store.dispatch(setCallRejected({
             rejected: true,
             reason: rejectionReason,
-        }))
-    }
+        }));
+
+        resetCallData()
+;    }
 }
+
+const sendOffer = async () => {
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+    wss.sendWebRTCOffer({
+        calleeSocketId: connectedUserSocketId,
+        offer: offer,
+    });
+};
+
+export const handleOffer = async (data) => {
+    await peerConnection.setRemoteDescription(data.offer);
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+    wss.sendWebRTCAnswer({
+        callerSocketId: connectedUserSocketId,
+        answer: answer
+    })
+};
+
+export const handleAnswer = async (data) => {
+    await peerConnection.setRemoteDescription(data.answer);
+};
+
+export const handleCandidate = async (data) => {
+    try {
+        await peerConnection.addIceCandidate(data.candidate);
+    } catch (error) {
+        console.error('error occurred when trying to add received ice candidate');
+    }
+};
 
 export const checkIfCallIsPossible = () => {
     if (store.getState().call.localStream === null ||
